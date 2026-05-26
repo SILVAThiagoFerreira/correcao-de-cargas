@@ -479,11 +479,54 @@ button {
   min-width: 0;
 }
 
+.outlier-card__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+
 .outlier-card__hole {
   display: block;
   font-family: 'IBM Plex Serif', Georgia, serif;
   font-size: clamp(1.2rem, 2vw, 1.8rem);
   line-height: 1;
+}
+
+.outlier-card__divider {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.outlier-card__tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 32, 51, 0.08);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.outlier-card__tag--depth {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.outlier-card__tag--charge {
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+}
+
+.outlier-card__tag--mixed {
+  background: linear-gradient(135deg, rgba(16, 61, 104, 0.12), rgba(213, 31, 43, 0.12));
+  color: var(--text);
 }
 
 .outlier-card__facts {
@@ -687,5 +730,10 @@ tbody tr:hover {
 
   .outlier-card__facts {
     grid-template-columns: 1fr;
+  }
+
+  .outlier-card__heading {
+    align-items: flex-start;
+    gap: 8px;
   }
 }
