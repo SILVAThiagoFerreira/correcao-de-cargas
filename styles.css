@@ -438,9 +438,9 @@ button {
 
 .outlier-card {
   display: grid;
-  grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
-  gap: 18px;
-  padding: 16px;
+  grid-template-columns: minmax(150px, 184px) minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px;
   border-radius: 24px;
   border: 1px solid rgba(16, 32, 51, 0.1);
   background: rgba(255, 255, 255, 0.9);
@@ -461,14 +461,16 @@ button {
 
 .outlier-card__visuals {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   align-content: start;
+  min-width: 0;
 }
 
 .outlier-card__art {
   border-radius: 20px;
   overflow: hidden;
   background: #f7f9fc;
+  min-width: 0;
 }
 
 .illustration {
@@ -483,6 +485,7 @@ button {
   justify-content: space-between;
   gap: 14px;
   min-width: 0;
+  padding-right: 4px;
 }
 
 .outlier-card__heading {
@@ -490,6 +493,7 @@ button {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px 12px;
+  min-width: 0;
 }
 
 .outlier-card__hole {
@@ -518,6 +522,7 @@ button {
   letter-spacing: 0.01em;
   line-height: 1.2;
   overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .outlier-card__tag--depth {
@@ -539,6 +544,7 @@ button {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 10px;
+  min-width: 0;
 }
 
 .fact {
@@ -546,6 +552,7 @@ button {
   border-radius: 18px;
   background: rgba(247, 249, 252, 0.95);
   border: 1px solid rgba(16, 32, 51, 0.08);
+  min-width: 0;
 }
 
 .fact span {
@@ -631,6 +638,7 @@ tbody tr:hover {
   margin-top: 4px;
   color: var(--muted);
   font-size: 0.86rem;
+  overflow-wrap: anywhere;
 }
 
 .badge-row {
