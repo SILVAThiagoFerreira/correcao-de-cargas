@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#091525" />
-  <title>Checagem de Cargas | Enaex</title>
+  <title>Alertas | Enaex</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet" />
@@ -18,90 +18,61 @@
           <img src="./VISUAL/Enaex Brasil - White.png" alt="Enaex Brasil" class="masthead__logo" />
         </div>
         <div class="masthead__copy">
-          <p class="eyebrow">Controle de plano de fogo</p>
-          <h1>Checagem de outliers no arquivo do app</h1>
-          <p class="masthead__text">Importe o plano exportado, ignore os furos deletados e destaque valores fora do padrão de profundidade e carga.</p>
+          <h1>Alertas</h1>
         </div>
       </div>
-      <div class="masthead__chip" id="status" aria-live="polite">Carregue o arquivo exportado para analisar.</div>
+      <div class="masthead__chip" id="status" aria-live="polite">Pronto</div>
     </header>
 
     <section class="hero panel">
-      <div class="hero__copy">
-        <p class="eyebrow eyebrow--dark">Entrada</p>
-        <h2>Leitura automática do modelo exportado pelo app.</h2>
-        <p>O sistema entende o arquivo do carregamento, calcula a faixa normal dos furos válidos e mostra apenas os suspeitos.</p>
-      </div>
-
       <div class="dropzone" id="dropzone">
         <input id="fileInput" class="dropzone__input" type="file" accept=".csv,.tsv,.txt" aria-label="Enviar arquivo de carregamento" />
 
         <div class="dropzone__content">
           <div class="dropzone__icon">⇪</div>
-          <strong>Solte o arquivo aqui</strong>
-          <span>Ou escolha um CSV/TSV exportado do app</span>
+          <strong>Arquivo</strong>
         </div>
 
         <div class="dropzone__actions">
-          <button type="button" class="btn btn--primary" id="sampleButton">Usar arquivo de exemplo</button>
-          <span class="file-chip" id="fileName">Nenhum arquivo carregado</span>
+          <button type="button" class="btn btn--primary" id="sampleButton">Exemplo</button>
+          <span class="file-chip" id="fileName">--</span>
         </div>
       </div>
     </section>
 
-    <section class="metrics" aria-label="Resumo da análise">
+    <section class="metrics" aria-label="Resumo">
       <article class="metric">
-        <span class="metric__label">Furos carregados</span>
+        <span class="metric__label">Furos</span>
         <strong class="metric__value" id="metricLoaded">-</strong>
-        <span class="metric__hint">Apenas os válidos entram na análise.</span>
       </article>
 
       <article class="metric">
-        <span class="metric__label">Deletados ignorados</span>
+        <span class="metric__label">Deletados</span>
         <strong class="metric__value" id="metricDeleted">-</strong>
-        <span class="metric__hint">Eliminados no arquivo não contam.</span>
       </article>
 
       <article class="metric">
-        <span class="metric__label">Profundidade média</span>
+        <span class="metric__label">Profundidade</span>
         <strong class="metric__value" id="metricDepth">-</strong>
-        <span class="metric__hint">Baseada nos furos carregados.</span>
       </article>
 
-      <article class="metric metric--alert">
-        <span class="metric__label">Carga média</span>
+      <article class="metric">
+        <span class="metric__label">Carga</span>
         <strong class="metric__value" id="metricCharge">-</strong>
-        <span class="metric__hint" id="metricAlerts">-</span>
       </article>
     </section>
 
     <section class="results panel">
       <div class="results__head">
-        <div>
-          <p class="eyebrow eyebrow--dark">Resultados</p>
-          <h3 id="resultsTitle">Furos com alerta</h3>
-        </div>
-        <span class="results__meta" id="resultsMeta">Lista vazia</span>
+        <h2 id="resultsTitle">Alertas</h2>
+        <span class="results__meta" id="resultsMeta">0</span>
       </div>
 
       <div class="empty-state" id="emptyState">
-        <strong>Envie um arquivo para iniciar a leitura.</strong>
-        <span>O sistema aceita o modelo exportado pelo app e ignora automaticamente os furos deletados.</span>
+        Carregue arquivo.
       </div>
 
-      <div class="table-wrap hidden" id="tableWrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Furo</th>
-              <th>Profundidade</th>
-              <th>Carga</th>
-              <th>Alertas</th>
-            </tr>
-          </thead>
-          <tbody id="resultsBody"></tbody>
-        </table>
-      </div>
+      <div class="outlier-list hidden" id="resultsBody"></div>
     </section>
   </main>
 

@@ -1,4 +1,4 @@
-import { analyzePlanText, formatNumber, formatPercent } from './logic.js';
+import { analyzePlanText, formatNumber } from './logic.js';
 
 const elements = {
   dropzone: document.getElementById('dropzone'),
@@ -11,16 +11,14 @@ const elements = {
     deleted: document.getElementById('metricDeleted'),
     depth: document.getElementById('metricDepth'),
     charge: document.getElementById('metricCharge'),
-    alerts: document.getElementById('metricAlerts'),
   },
   resultsTitle: document.getElementById('resultsTitle'),
   resultsMeta: document.getElementById('resultsMeta'),
   emptyState: document.getElementById('emptyState'),
-  tableWrap: document.getElementById('tableWrap'),
-  tbody: document.getElementById('resultsBody'),
+  resultsBody: document.getElementById('resultsBody'),
 };
 
-let lastFileName = 'Nenhum arquivo carregado';
+let lastFileName = '--';
 
 bindEvents();
 renderIdleState();
@@ -37,15 +35,16 @@ function bindEvents() {
 
 function renderIdleState() {
   setFileName(lastFileName);
-  setStatus('Carregue o arquivo exportado para analisar.', 'neutral');
+  setStatus('Pronto', 'neutral');
   setMetrics({
     loaded: '-',
     deleted: '-',
     depth: '-',
     charge: '-',
-    alerts: '-',
   });
-  showEmptyState('Envie um arquivo para iniciar a leitura.', 'O sistema aceita o modelo exportado pelo app e ignora automaticamente os furos deletados.');
+  elements.resultsTitle.textContent = 'Alertas';
+  elements.resultsMeta.textContent = '0';
+  showEmptyState('Carregue arquivo.');
 }
 
 async function handleFileSelection(event) {
@@ -95,7 +94,7 @@ async function loadSampleFile() {
     const text = await response.text();
     renderAnalysis(analyzePlanText(text), 'PP210526_EXEC.csv');
   } catch (error) {
-    showError('Não foi possível carregar o exemplo. Envie um arquivo do app ou tente novamente.');
+    showError('Erro ao abrir exemplo.');
   } finally {
     setBusy(false);
   }
@@ -108,7 +107,7 @@ async function loadFile(file) {
     const text = await file.text();
     renderAnalysis(analyzePlanText(text), file.name);
   } catch (error) {
-    showError('Não foi possível ler esse arquivo. Verifique se ele segue o modelo exportado pelo app.');
+    showError('Arquivo inválido.');
   } finally {
     setBusy(false);
   }
@@ -118,87 +117,114 @@ function renderAnalysis(analysis, fileName) {
   lastFileName = fileName;
   setFileName(fileName);
 
-  const alertText = analysis.outlierCount === 0
-    ? 'Nenhum alerta'
-    : `${analysis.outlierCount} suspeitos`;
-
-  setStatus(
-    `${analysis.activeRows} furos carregados analisados. ${analysis.deletedRows} deletados ignorados. ${analysis.outlierCount} suspeitos encontrados.`,
-    analysis.outlierCount > 0 ? 'alert' : 'neutral',
-  );
+  setStatus(`${analysis.activeRows} furos · ${analysis.outlierCount} alertas`, analysis.outlierCount > 0 ? 'alert' : 'neutral');
 
   setMetrics({
     loaded: analysis.activeRows,
     deleted: analysis.deletedRows,
     depth: `${formatNumber(analysis.depthStats.mean, 2)} m`,
     charge: `${formatNumber(analysis.chargeStats.mean, 2)} kg`,
-    alerts: alertText,
   });
 
+  elements.resultsTitle.textContent = 'Alertas';
+  elements.resultsMeta.textContent = String(analysis.outliers.length);
+
   if (!analysis.activeRows) {
-    showEmptyState('Nenhum furo carregado foi encontrado nesse arquivo.', 'Se o arquivo estiver no modelo correto, a leitura acontece automaticamente ao importar.');
+    showEmptyState('Sem furos.');
     return;
   }
 
   if (!analysis.outliers.length) {
-    showEmptyState('Nenhum outlier encontrado.', 'Os furos carregados ficaram dentro da faixa esperada para profundidade e carga.');
+    showEmptyState('Sem alertas.');
     return;
   }
 
   elements.emptyState.classList.add('hidden');
-  elements.tableWrap.classList.remove('hidden');
-  elements.resultsTitle.textContent = 'Furos com alerta';
-  elements.resultsMeta.textContent = `${analysis.outliers.length} furos sinalizados`;
-  elements.tbody.innerHTML = analysis.outliers.map(renderRow).join('');
+  elements.resultsBody.classList.remove('hidden');
+  elements.resultsBody.innerHTML = analysis.outliers.map(renderCard).join('');
 }
 
-function renderRow(hole) {
-  const depthReason = hole.reasons.find((reason) => reason.metric === 'depth');
-  const chargeReason = hole.reasons.find((reason) => reason.metric === 'charge');
-  const reasonBadges = hole.reasons.map((reason) => {
-    const badgeClass = reason.metric === 'depth' ? 'badge badge--depth' : 'badge badge--charge';
-    const delta = reason.reference > 0 ? formatPercent(((reason.value - reason.reference) / reason.reference) * 100, 0) : '-';
+function renderCard(hole) {
+  const reasons = [...hole.reasons].sort((left, right) => metricOrder(left.metric) - metricOrder(right.metric));
+  const tone = reasons[0]?.metric ?? 'depth';
+  const classes = ['outlier-card', `outlier-card--${tone}`];
 
-    return `<span class="${badgeClass}">${escapeHtml(reason.label)} ${escapeHtml(delta)}</span>`;
-  }).join('');
-
-  const primaryReason = hole.reasons[0];
+  if (reasons.length > 1) {
+    classes.push('outlier-card--mixed');
+  }
 
   return `
-    <tr class="outlier-row">
-      <td>
-        <strong>Furo ${escapeHtml(hole.number)}</strong>
-        <span class="subtle">${escapeHtml(hole.reasons.length > 1 ? 'Mais de um alerta' : primaryReason.label)}</span>
-      </td>
-      <td>
-        <strong>${escapeHtml(formatNumber(hole.depth, 2))} m</strong>
-        <span class="subtle">Referência: ${depthReason ? escapeHtml(formatNumber(depthReason.reference, 2)) + ' m' : '—'}</span>
-      </td>
-      <td>
-        <strong>${escapeHtml(formatNumber(hole.charge, 2))} kg</strong>
-        <span class="subtle">Referência: ${chargeReason ? escapeHtml(formatNumber(chargeReason.reference, 2)) + ' kg' : '—'}</span>
-      </td>
-      <td>
-        <div class="badge-row">${reasonBadges}</div>
-      </td>
-    </tr>
+    <article class="${classes.join(' ')}">
+      <div class="outlier-card__visuals">
+        ${reasons.map((reason) => `<div class="outlier-card__art outlier-card__art--${reason.metric}">${renderArt(reason.metric)}</div>`).join('')}
+      </div>
+      <div class="outlier-card__body">
+        <strong class="outlier-card__hole">Furo ${escapeHtml(hole.number)}</strong>
+        <div class="outlier-card__facts">
+          ${reasons.map(renderFact).join('')}
+        </div>
+      </div>
+    </article>
   `;
 }
 
-function showEmptyState(title, description) {
-  elements.emptyState.classList.remove('hidden');
-  elements.tableWrap.classList.add('hidden');
-  elements.resultsTitle.textContent = 'Furos com alerta';
-  elements.resultsMeta.textContent = 'Lista vazia';
-  elements.emptyState.innerHTML = `
-    <strong>${escapeHtml(title)}</strong>
-    <span>${escapeHtml(description)}</span>
+function renderFact(reason) {
+  const label = reason.metric === 'depth' ? 'Prof.' : 'Carga';
+  const unit = reason.metric === 'depth' ? 'm' : 'kg';
+
+  return `
+    <div class="fact fact--${reason.metric}">
+      <span>${label}</span>
+      <strong>${escapeHtml(formatNumber(reason.value, 2))} ${unit}</strong>
+    </div>
   `;
+}
+
+function renderArt(metric) {
+  return metric === 'depth' ? renderDepthArt() : renderChargeArt();
+}
+
+function renderDepthArt() {
+  return `
+    <svg viewBox="0 0 180 140" role="img" aria-label="Profundidade" class="illustration illustration--depth" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="10" width="160" height="120" rx="24" fill="#f7f9fc" />
+      <rect x="69" y="18" width="42" height="14" rx="7" fill="#d51f2b" />
+      <path d="M71 39h38c10 0 18 8 18 18v22c0 18-14 33-37 33s-37-15-37-33V57c0-10 8-18 18-18z" fill="#102033" />
+      <path d="M90 30v18" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+      <path d="M82 41l8 8 8-8" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M49 32h10M45 46h14M49 60h10M45 74h14M49 88h10" stroke="#7d8aa0" stroke-width="3" stroke-linecap="round" />
+      <path d="M81 100h18" stroke="#d51f2b" stroke-width="6" stroke-linecap="round" />
+      <path d="M84 108l6 6 6-6" fill="none" stroke="#d51f2b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  `;
+}
+
+function renderChargeArt() {
+  return `
+    <svg viewBox="0 0 180 140" role="img" aria-label="Carga" class="illustration illustration--charge" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="10" width="160" height="120" rx="24" fill="#f7f9fc" />
+      <path d="M71 32h38c10 0 18 8 18 18v34c0 10-8 18-18 18H71c-10 0-18-8-18-18V50c0-10 8-18 18-18z" fill="#102033" />
+      <rect x="78" y="34" width="24" height="14" rx="7" fill="#d51f2b" />
+      <rect x="78" y="50" width="24" height="14" rx="7" fill="#ef4c54" />
+      <rect x="78" y="66" width="24" height="14" rx="7" fill="#d51f2b" />
+      <rect x="78" y="82" width="24" height="14" rx="7" fill="#ef4c54" />
+      <path d="M126 34l4 8 8 4-8 4-4 8-4-8-8-4 8-4 4-8z" fill="#d51f2b" />
+      <path d="M49 34h10M45 48h14M49 62h10M45 76h14M49 90h10" stroke="#7d8aa0" stroke-width="3" stroke-linecap="round" />
+      <path d="M95 24l6 6 6-6" fill="none" stroke="#ef4c54" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  `;
+}
+
+function showEmptyState(message) {
+  elements.emptyState.classList.remove('hidden');
+  elements.resultsBody.classList.add('hidden');
+  elements.resultsBody.innerHTML = '';
+  elements.emptyState.textContent = message;
 }
 
 function showError(message) {
   setStatus(message, 'error');
-  showEmptyState('Não foi possível analisar o arquivo.', 'Envie um CSV/TSV exportado no mesmo modelo do app.');
+  showEmptyState('Arquivo inválido.');
 }
 
 function setFileName(fileName) {
@@ -215,13 +241,16 @@ function setMetrics(values) {
   elements.metrics.deleted.textContent = values.deleted;
   elements.metrics.depth.textContent = values.depth;
   elements.metrics.charge.textContent = values.charge;
-  elements.metrics.alerts.textContent = values.alerts;
 }
 
 function setBusy(isBusy) {
   elements.sampleButton.disabled = isBusy;
   elements.fileInput.disabled = isBusy;
   elements.dropzone.classList.toggle('is-busy', isBusy);
+}
+
+function metricOrder(metric) {
+  return metric === 'depth' ? 0 : 1;
 }
 
 function escapeHtml(value) {
