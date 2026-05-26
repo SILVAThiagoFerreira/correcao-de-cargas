@@ -411,6 +411,7 @@ button {
   background: rgba(255, 255, 255, 0.72);
   text-align: center;
   color: var(--muted);
+  line-height: 1.55;
 }
 
 .empty-state strong {
@@ -418,6 +419,10 @@ button {
   margin-bottom: 8px;
   color: var(--text);
   font-size: 1.1rem;
+}
+
+.empty-state span {
+  display: block;
 }
 
 .outlier-list {

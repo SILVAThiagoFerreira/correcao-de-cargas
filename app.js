@@ -18,7 +18,7 @@ const elements = {
   resultsBody: document.getElementById('resultsBody'),
 };
 
-let lastFileName = '--';
+let lastFileName = 'Nenhum arquivo selecionado';
 
 bindEvents();
 renderIdleState();
@@ -35,16 +35,19 @@ function bindEvents() {
 
 function renderIdleState() {
   setFileName(lastFileName);
-  setStatus('Pronto', 'neutral');
+  setStatus('Aguardando arquivo', 'neutral');
   setMetrics({
     loaded: '-',
     deleted: '-',
     depth: '-',
     charge: '-',
   });
-  elements.resultsTitle.textContent = 'Alertas';
+  elements.resultsTitle.textContent = 'Outliers identificados';
   elements.resultsMeta.textContent = '0';
-  showEmptyState('Carregue arquivo.');
+  showEmptyState(
+    'Nenhum arquivo processado ainda.',
+    'Importe um CSV, TSV ou TXT estruturado para iniciar a análise.',
+  );
 }
 
 async function handleFileSelection(event) {
@@ -94,7 +97,7 @@ async function loadSampleFile() {
     const text = await response.text();
     renderAnalysis(analyzePlanText(text), 'PP210526_EXEC.csv');
   } catch (error) {
-    showError('Erro ao abrir exemplo.');
+    showError('Falha ao carregar a amostra.', 'Verifique se o arquivo de exemplo está disponível.');
   } finally {
     setBusy(false);
   }
@@ -107,7 +110,7 @@ async function loadFile(file) {
     const text = await file.text();
     renderAnalysis(analyzePlanText(text), file.name);
   } catch (error) {
-    showError('Arquivo inválido.');
+    showError('Arquivo inválido.', 'O arquivo deve ser tabular e seguir o modelo CSV/TSV esperado.');
   } finally {
     setBusy(false);
   }
@@ -117,7 +120,11 @@ function renderAnalysis(analysis, fileName) {
   lastFileName = fileName;
   setFileName(fileName);
 
-  setStatus(`${analysis.activeRows} furos · ${analysis.outlierCount} alertas`, analysis.outlierCount > 0 ? 'alert' : 'neutral');
+  const outlierLabel = analysis.outlierCount === 1
+    ? '1 outlier identificado'
+    : `${analysis.outlierCount} outliers identificados`;
+
+  setStatus(`${analysis.activeRows} furos válidos · ${outlierLabel}`, analysis.outlierCount > 0 ? 'alert' : 'neutral');
 
   setMetrics({
     loaded: analysis.activeRows,
@@ -126,16 +133,16 @@ function renderAnalysis(analysis, fileName) {
     charge: `${formatNumber(analysis.chargeStats.mean, 2)} kg`,
   });
 
-  elements.resultsTitle.textContent = 'Alertas';
+  elements.resultsTitle.textContent = 'Outliers identificados';
   elements.resultsMeta.textContent = String(analysis.outliers.length);
 
   if (!analysis.activeRows) {
-    showEmptyState('Sem furos.');
+    showEmptyState('Sem registros elegíveis.', 'Não há furos ativos com profundidade e carga válidas para análise.');
     return;
   }
 
   if (!analysis.outliers.length) {
-    showEmptyState('Sem alertas.');
+    showEmptyState('Sem outliers identificados.', 'Os registros permanecem dentro da faixa estatística esperada para profundidade e carga.');
     return;
   }
 
@@ -156,7 +163,7 @@ function renderCard(hole) {
   return `
     <article class="${classes.join(' ')}">
       <div class="outlier-card__visuals">
-        ${reasons.map((reason) => `<div class="outlier-card__art outlier-card__art--${reason.metric}">${renderArt(reason.metric)}</div>`).join('')}
+        ${reasons.map((reason) => `<div class="outlier-card__art outlier-card__art--${reason.metric}">${renderArt(reason.metric, `${hole.number}-${reason.metric}`)}</div>`).join('')}
       </div>
       <div class="outlier-card__body">
         <strong class="outlier-card__hole">Furo ${escapeHtml(hole.number)}</strong>
@@ -169,62 +176,139 @@ function renderCard(hole) {
 }
 
 function renderFact(reason) {
-  const label = reason.metric === 'depth' ? 'Prof.' : 'Carga';
+  const label = reason.metric === 'depth' ? 'Profundidade real' : 'Carga total real';
   const unit = reason.metric === 'depth' ? 'm' : 'kg';
+  const referenceLabel = reason.method === 'mad' ? 'mediana' : 'média';
+  const estimatorLabel = reason.method === 'mad' ? 'MAD' : 'DP';
+  const deviationLabel = reason.method === 'mad' ? 'z robusto' : 'z';
+  const note = `Ref.: ${referenceLabel} ${formatNumber(reason.reference, 2)} ${unit} · ${estimatorLabel} · ${deviationLabel} ${formatSignedNumber(reason.score, 2)}`;
 
   return `
     <div class="fact fact--${reason.metric}">
       <span>${label}</span>
       <strong>${escapeHtml(formatNumber(reason.value, 2))} ${unit}</strong>
+      <div class="subtle">${escapeHtml(note)}</div>
     </div>
   `;
 }
 
-function renderArt(metric) {
-  return metric === 'depth' ? renderDepthArt() : renderChargeArt();
+function renderArt(metric, seed) {
+  return metric === 'depth' ? renderDepthArt(seed) : renderChargeArt(seed);
 }
 
-function renderDepthArt() {
+function renderDepthArt(seed) {
+  const baseId = svgIdSeed(`depth-${seed}`);
+  const bgId = `${baseId}-bg`;
+  const holeId = `${baseId}-hole`;
+  const capId = `${baseId}-cap`;
+  const glowId = `${baseId}-glow`;
+
   return `
-    <svg viewBox="0 0 180 140" role="img" aria-label="Profundidade" class="illustration illustration--depth" xmlns="http://www.w3.org/2000/svg">
-      <rect x="10" y="10" width="160" height="120" rx="24" fill="#f7f9fc" />
-      <rect x="69" y="18" width="42" height="14" rx="7" fill="#d51f2b" />
-      <path d="M71 39h38c10 0 18 8 18 18v22c0 18-14 33-37 33s-37-15-37-33V57c0-10 8-18 18-18z" fill="#102033" />
-      <path d="M90 30v18" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
-      <path d="M82 41l8 8 8-8" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M49 32h10M45 46h14M49 60h10M45 74h14M49 88h10" stroke="#7d8aa0" stroke-width="3" stroke-linecap="round" />
-      <path d="M81 100h18" stroke="#d51f2b" stroke-width="6" stroke-linecap="round" />
-      <path d="M84 108l6 6 6-6" fill="none" stroke="#d51f2b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+    <svg viewBox="0 0 180 140" role="img" aria-label="Ilustração de outlier de profundidade" class="illustration illustration--depth" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${bgId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f8fbff" />
+          <stop offset="100%" stop-color="#edf3fa" />
+        </linearGradient>
+        <linearGradient id="${holeId}" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#122136" />
+          <stop offset="100%" stop-color="#09101b" />
+        </linearGradient>
+        <linearGradient id="${capId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ef4c54" />
+          <stop offset="100%" stop-color="#d51f2b" />
+        </linearGradient>
+        <radialGradient id="${glowId}" cx="50%" cy="38%" r="58%">
+          <stop offset="0%" stop-color="#d51f2b" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="#d51f2b" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect x="10" y="10" width="160" height="120" rx="24" fill="url(#${bgId})" />
+      <circle cx="132" cy="38" r="28" fill="url(#${glowId})" />
+      <g opacity="0.65" stroke="#c9d3e0" stroke-width="1.2" stroke-linecap="round">
+        <path d="M34 28h14M34 38h10M34 48h14M34 58h10M34 68h14M34 78h10M34 88h14M34 98h10M34 108h14" />
+      </g>
+      <path d="M78 26h24c8 0 14 6 14 14v56c0 15-10 25-26 25s-26-10-26-25V40c0-8 6-14 14-14z" fill="url(#${holeId})" />
+      <path d="M80 34h20c6 0 11 5 11 11v42c0 10-7 17-21 17s-21-7-21-17V45c0-6 5-11 11-11z" fill="#15263b" opacity="0.92" />
+      <path d="M90 28v16" stroke="url(#${capId})" stroke-width="4" stroke-linecap="round" />
+      <path d="M82 38l8 8 8-8" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M126 28v76" stroke="#d51f2b" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 6" />
+      <path d="M121 98l5 9 5-9" fill="#d51f2b" />
+      <path d="M45 116h90" stroke="#aeb9c9" stroke-width="2" stroke-linecap="round" />
+      <circle cx="90" cy="100" r="10" fill="#d51f2b" opacity="0.12" />
+      <circle cx="90" cy="100" r="5.5" fill="#d51f2b" />
+      <path d="M64 102c8-6 16-9 26-9s18 3 26 9" fill="none" stroke="#5f7088" stroke-width="2" stroke-linecap="round" opacity="0.75" />
     </svg>
   `;
 }
 
-function renderChargeArt() {
+function renderChargeArt(seed) {
+  const baseId = svgIdSeed(`charge-${seed}`);
+  const bgId = `${baseId}-bg`;
+  const tubeId = `${baseId}-tube`;
+  const fillId = `${baseId}-fill`;
+  const glowId = `${baseId}-glow`;
+
   return `
-    <svg viewBox="0 0 180 140" role="img" aria-label="Carga" class="illustration illustration--charge" xmlns="http://www.w3.org/2000/svg">
-      <rect x="10" y="10" width="160" height="120" rx="24" fill="#f7f9fc" />
-      <path d="M71 32h38c10 0 18 8 18 18v34c0 10-8 18-18 18H71c-10 0-18-8-18-18V50c0-10 8-18 18-18z" fill="#102033" />
-      <rect x="78" y="34" width="24" height="14" rx="7" fill="#d51f2b" />
-      <rect x="78" y="50" width="24" height="14" rx="7" fill="#ef4c54" />
-      <rect x="78" y="66" width="24" height="14" rx="7" fill="#d51f2b" />
-      <rect x="78" y="82" width="24" height="14" rx="7" fill="#ef4c54" />
+    <svg viewBox="0 0 180 140" role="img" aria-label="Ilustração de outlier de carga" class="illustration illustration--charge" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="${bgId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f8fbff" />
+          <stop offset="100%" stop-color="#eef3fa" />
+        </linearGradient>
+        <linearGradient id="${tubeId}" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#132235" />
+          <stop offset="100%" stop-color="#09111c" />
+        </linearGradient>
+        <linearGradient id="${fillId}" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ef4c54" />
+          <stop offset="100%" stop-color="#d51f2b" />
+        </linearGradient>
+        <radialGradient id="${glowId}" cx="50%" cy="35%" r="58%">
+          <stop offset="0%" stop-color="#d51f2b" stop-opacity="0.18" />
+          <stop offset="100%" stop-color="#d51f2b" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect x="10" y="10" width="160" height="120" rx="24" fill="url(#${bgId})" />
+      <circle cx="55" cy="40" r="24" fill="url(#${glowId})" />
+      <g opacity="0.65" stroke="#c9d3e0" stroke-width="1.2" stroke-linecap="round">
+        <path d="M32 34h14M32 46h10M32 58h14M32 70h10M32 82h14M32 94h10M32 106h14" />
+      </g>
+      <rect x="70" y="22" width="44" height="96" rx="22" fill="url(#${tubeId})" stroke="#d7dfec" stroke-width="1.2" />
+      <rect x="78" y="32" width="28" height="76" rx="14" fill="#0f1c2c" opacity="0.96" />
+      <rect x="80" y="38" width="24" height="10" rx="5" fill="url(#${fillId})" />
+      <rect x="80" y="51" width="24" height="10" rx="5" fill="#ef4c54" />
+      <rect x="80" y="64" width="24" height="10" rx="5" fill="url(#${fillId})" />
+      <rect x="80" y="77" width="24" height="10" rx="5" fill="#ef4c54" />
+      <rect x="80" y="90" width="24" height="10" rx="5" fill="url(#${fillId})" />
       <path d="M126 34l4 8 8 4-8 4-4 8-4-8-8-4 8-4 4-8z" fill="#d51f2b" />
-      <path d="M49 34h10M45 48h14M49 62h10M45 76h14M49 90h10" stroke="#7d8aa0" stroke-width="3" stroke-linecap="round" />
-      <path d="M95 24l6 6 6-6" fill="none" stroke="#ef4c54" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M131 70v34" stroke="#d51f2b" stroke-width="3" stroke-linecap="round" stroke-dasharray="8 6" />
+      <path d="M126 98l5 9 5-9" fill="#d51f2b" />
+      <rect x="118" y="86" width="18" height="26" rx="9" fill="none" stroke="#ef4c54" stroke-width="3" opacity="0.72" />
+      <circle cx="127" cy="99" r="5.5" fill="#ef4c54" />
+      <path d="M118 99h18" stroke="#ffffff" stroke-width="2" stroke-linecap="round" />
+      <path d="M44 116h92" stroke="#aeb9c9" stroke-width="2" stroke-linecap="round" />
+      <path d="M141 38h12M141 50h8M141 62h12M141 74h8M141 86h12M141 98h8" stroke="#aeb9c9" stroke-width="2" stroke-linecap="round" />
     </svg>
   `;
 }
 
-function showEmptyState(message) {
+function showEmptyState(title, detail = '') {
   elements.emptyState.classList.remove('hidden');
   elements.resultsBody.classList.add('hidden');
   elements.resultsBody.innerHTML = '';
-  elements.emptyState.textContent = message;
+
+  if (detail) {
+    elements.emptyState.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(detail)}</span>`;
+    return;
+  }
+
+  elements.emptyState.textContent = title;
 }
 
-function showError(message) {
+function showError(message, detail = '') {
   setStatus(message, 'error');
-  showEmptyState('Arquivo inválido.');
+  showEmptyState(message, detail);
 }
 
 function setFileName(fileName) {
@@ -247,6 +331,22 @@ function setBusy(isBusy) {
   elements.sampleButton.disabled = isBusy;
   elements.fileInput.disabled = isBusy;
   elements.dropzone.classList.toggle('is-busy', isBusy);
+}
+
+function formatSignedNumber(value, digits = 2) {
+  if (!Number.isFinite(value)) {
+    return '-';
+  }
+
+  return new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: digits,
+    signDisplay: 'always',
+  }).format(value);
+}
+
+function svgIdSeed(seed) {
+  return String(seed ?? 'asset').replace(/[^a-zA-Z0-9_-]/g, '_');
 }
 
 function metricOrder(metric) {

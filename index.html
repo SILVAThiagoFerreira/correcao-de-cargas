@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#091525" />
-  <title>Alertas | Enaex</title>
+  <title>Análise de Outliers em Fase de Carregamento | Enaex</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet" />
@@ -18,10 +18,12 @@
           <img src="./VISUAL/Enaex Brasil - White.png" alt="Enaex Brasil" class="masthead__logo" />
         </div>
         <div class="masthead__copy">
-          <h1>Alertas</h1>
+          <div class="eyebrow">Diagnóstico estatístico</div>
+          <h1>Análise de Outliers em Fase de Carregamento</h1>
+          <p class="masthead__text">Triagem estatística de profundidade real e carga total real para identificar desvios amostrais, registros eliminados e valores fora do envelope operacional.</p>
         </div>
       </div>
-      <div class="masthead__chip" id="status" aria-live="polite">Pronto</div>
+      <div class="masthead__chip" id="status" aria-live="polite">Aguardando arquivo</div>
     </header>
 
     <section class="hero panel">
@@ -30,46 +32,51 @@
 
         <div class="dropzone__content">
           <div class="dropzone__icon">⇪</div>
-          <strong>Arquivo</strong>
+          <strong>Importar arquivo tabular</strong>
+          <span>CSV, TSV ou TXT estruturado</span>
         </div>
 
         <div class="dropzone__actions">
-          <button type="button" class="btn btn--primary" id="sampleButton">Exemplo</button>
-          <span class="file-chip" id="fileName">--</span>
+          <button type="button" class="btn btn--primary" id="sampleButton">Carregar amostra</button>
+          <span class="file-chip" id="fileName">Nenhum arquivo selecionado</span>
         </div>
       </div>
     </section>
 
     <section class="metrics" aria-label="Resumo">
       <article class="metric">
-        <span class="metric__label">Furos</span>
+        <span class="metric__label">Furos ativos</span>
         <strong class="metric__value" id="metricLoaded">-</strong>
+        <span class="metric__hint">Registros elegíveis para a análise</span>
       </article>
 
       <article class="metric">
-        <span class="metric__label">Deletados</span>
+        <span class="metric__label">Furos eliminados</span>
         <strong class="metric__value" id="metricDeleted">-</strong>
+        <span class="metric__hint">Marcados como excluídos no export</span>
       </article>
 
       <article class="metric">
-        <span class="metric__label">Profundidade</span>
+        <span class="metric__label">Profundidade real média</span>
         <strong class="metric__value" id="metricDepth">-</strong>
+        <span class="metric__hint">Média amostral da profundidade executada</span>
       </article>
 
       <article class="metric">
-        <span class="metric__label">Carga</span>
+        <span class="metric__label">Carga total real média</span>
         <strong class="metric__value" id="metricCharge">-</strong>
+        <span class="metric__hint">Média amostral da carga executada</span>
       </article>
     </section>
 
     <section class="results panel">
       <div class="results__head">
-        <h2 id="resultsTitle">Alertas</h2>
+        <h2 id="resultsTitle">Outliers identificados</h2>
         <span class="results__meta" id="resultsMeta">0</span>
       </div>
 
       <div class="empty-state" id="emptyState">
-        Carregue arquivo.
+        Nenhum arquivo processado ainda.
       </div>
 
       <div class="outlier-list hidden" id="resultsBody"></div>
