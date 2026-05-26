@@ -265,14 +265,14 @@ button {
 }
 
 .dropzone__icon {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   display: grid;
   place-items: center;
-  border-radius: 20px;
+  border-radius: 18px;
   background: rgba(16, 61, 104, 0.08);
   color: var(--blue);
-  font-size: 1.75rem;
+  font-size: 1.55rem;
   font-weight: 700;
 }
 
@@ -291,6 +291,7 @@ button {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+  padding-top: 2px;
 }
 
 .btn {
@@ -302,7 +303,7 @@ button {
   border-radius: 999px;
   font-weight: 700;
   letter-spacing: 0.01em;
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
 .btn:hover:not(:disabled) {
@@ -372,7 +373,7 @@ button {
 .metric__value {
   display: block;
   font-family: 'IBM Plex Serif', Georgia, serif;
-  font-size: clamp(1.35rem, 2vw, 2.15rem);
+  font-size: clamp(1.55rem, 2.1vw, 2.35rem);
   line-height: 1;
 }
 
@@ -438,8 +439,8 @@ button {
 
 .outlier-card {
   display: grid;
-  grid-template-columns: minmax(150px, 184px) minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: minmax(136px, 164px) minmax(0, 1fr);
+  gap: 18px;
   padding: 18px;
   border-radius: 24px;
   border: 1px solid rgba(16, 32, 51, 0.1);
@@ -471,19 +472,20 @@ button {
   overflow: hidden;
   background: #f7f9fc;
   min-width: 0;
+  aspect-ratio: 180 / 140;
 }
 
 .illustration {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
 }
 
 .outlier-card__body {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 14px;
+  justify-content: center;
+  gap: 16px;
   min-width: 0;
   padding-right: 4px;
 }
@@ -494,6 +496,7 @@ button {
   align-items: center;
   gap: 10px 12px;
   min-width: 0;
+  padding-bottom: 2px;
 }
 
 .outlier-card__hole {
@@ -693,6 +696,10 @@ tbody tr:hover {
   .outlier-card {
     grid-template-columns: 1fr;
   }
+
+  .outlier-card__art {
+    max-width: 320px;
+  }
 }
 
 @media (max-width: 680px) {
@@ -749,5 +756,9 @@ tbody tr:hover {
   .outlier-card__heading {
     align-items: flex-start;
     gap: 8px;
+  }
+
+  .outlier-card__art {
+    max-width: none;
   }
 }

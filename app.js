@@ -271,12 +271,11 @@ function renderChargeArt(reason) {
 
 function renderTrendGlyph(arrow, headline, caption, color, panelFill) {
   return `
-    <g transform="translate(124 26)">
-      <rect x="0" y="0" width="40" height="88" rx="20" fill="${panelFill}" stroke="#d7dfec" stroke-width="1" />
-      <circle cx="20" cy="23" r="11" fill="${color}" opacity="0.14" />
-      <text x="20" y="31" text-anchor="middle" fill="${color}" font-size="22" font-weight="700" font-family="'IBM Plex Sans', system-ui, sans-serif">${arrow}</text>
-      <text x="20" y="55" text-anchor="middle" fill="${color}" font-size="7.2" font-weight="700" letter-spacing="0.12em" font-family="'IBM Plex Sans', system-ui, sans-serif">${headline}</text>
-      <text x="20" y="70" text-anchor="middle" fill="#66758a" font-size="5.8" font-weight="700" letter-spacing="0.06em" font-family="'IBM Plex Sans', system-ui, sans-serif">${caption}</text>
+    <g transform="translate(126 30)">
+      <rect x="0" y="0" width="38" height="78" rx="19" fill="${panelFill}" stroke="#d7dfec" stroke-width="1" />
+      <circle cx="19" cy="22" r="10" fill="${color}" opacity="0.14" />
+      <text x="19" y="30" text-anchor="middle" fill="${color}" font-size="20" font-weight="700" font-family="'IBM Plex Sans', system-ui, sans-serif">${arrow}</text>
+      <text x="19" y="54" text-anchor="middle" fill="${color}" font-size="7" font-weight="700" letter-spacing="0.12em" font-family="'IBM Plex Sans', system-ui, sans-serif">${headline}</text>
     </g>
   `;
 }
