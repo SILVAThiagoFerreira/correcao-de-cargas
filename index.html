@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#091525" />
-  <title>Análise de Outliers em Fase de Carregamento | Enaex</title>
+  <title>Diagnóstico Estatístico de Plano de Fogo | Enaex</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet" />
@@ -18,12 +18,12 @@
           <img src="./VISUAL/Enaex Brasil - White.png" alt="Enaex Brasil" class="masthead__logo" />
         </div>
         <div class="masthead__copy">
-          <div class="eyebrow">Diagnóstico estatístico</div>
-          <h1>Análise de Outliers em Fase de Carregamento</h1>
-          <p class="masthead__text">Triagem estatística de profundidade real e carga total real para identificar desvios amostrais, registros eliminados e valores fora do envelope operacional.</p>
+          <div class="eyebrow">Diagnóstico de carregamento</div>
+          <h1>Diagnóstico Estatístico de Plano de Fogo</h1>
+          <p class="masthead__text">Avaliação de furos, profundidade real e carga total real para identificar desvios operacionais, registros excluídos e pontos fora da faixa esperada.</p>
         </div>
       </div>
-      <div class="masthead__chip" id="status" aria-live="polite">Aguardando arquivo</div>
+      <div class="masthead__chip" id="status" aria-live="polite">Aguardando entrada de dados</div>
     </header>
 
     <section class="hero panel">
@@ -32,13 +32,13 @@
 
         <div class="dropzone__content">
           <div class="dropzone__icon">⇪</div>
-          <strong>Importar arquivo tabular</strong>
-          <span>Carregue uma amostra ou selecione um CSV, TSV ou TXT estruturado</span>
+          <strong>Importar base de análise</strong>
+          <span>Carregue a amostra ou selecione um CSV, TSV ou TXT estruturado</span>
         </div>
 
         <div class="dropzone__actions">
           <button type="button" class="btn btn--primary" id="sampleButton">Carregar amostra</button>
-          <button type="button" class="btn btn--secondary" id="fileButton">Selecionar arquivo para análise</button>
+          <button type="button" class="btn btn--secondary" id="fileButton">Selecionar arquivo</button>
           <span class="file-chip" id="fileName">Nenhum arquivo selecionado</span>
         </div>
       </div>
@@ -46,33 +46,33 @@
 
     <section class="metrics" aria-label="Resumo">
       <article class="metric">
-        <span class="metric__label">Furos ativos</span>
+        <span class="metric__label">Furos válidos</span>
         <strong class="metric__value" id="metricLoaded">-</strong>
-        <span class="metric__hint">Registros elegíveis para a análise</span>
+        <span class="metric__hint">Registros incluídos na leitura estatística</span>
       </article>
 
       <article class="metric">
-        <span class="metric__label">Furos eliminados</span>
+        <span class="metric__label">Furos excluídos</span>
         <strong class="metric__value" id="metricDeleted">-</strong>
-        <span class="metric__hint">Marcados como excluídos no export</span>
+        <span class="metric__hint">Marcados como eliminados no arquivo de origem</span>
       </article>
 
       <article class="metric">
-        <span class="metric__label">Profundidade real média</span>
+        <span class="metric__label">Profundidade média</span>
         <strong class="metric__value" id="metricDepth">-</strong>
-        <span class="metric__hint">Média amostral da profundidade executada</span>
+        <span class="metric__hint">Média da profundidade real executada</span>
       </article>
 
       <article class="metric">
-        <span class="metric__label">Carga total real média</span>
+        <span class="metric__label">Carga média</span>
         <strong class="metric__value" id="metricCharge">-</strong>
-        <span class="metric__hint">Média amostral da carga executada</span>
+        <span class="metric__hint">Média da carga total real aplicada</span>
       </article>
     </section>
 
     <section class="results panel">
       <div class="results__head">
-        <h2 id="resultsTitle">Outliers identificados</h2>
+        <h2 id="resultsTitle">Ocorrências fora do padrão</h2>
         <span class="results__meta" id="resultsMeta">0</span>
       </div>
 

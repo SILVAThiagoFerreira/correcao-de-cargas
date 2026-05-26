@@ -37,18 +37,18 @@ function bindEvents() {
 
 function renderIdleState() {
   setFileName(lastFileName);
-  setStatus('Aguardando arquivo', 'neutral');
+  setStatus('Aguardando entrada de dados', 'neutral');
   setMetrics({
     loaded: '-',
     deleted: '-',
     depth: '-',
     charge: '-',
   });
-  elements.resultsTitle.textContent = 'Outliers identificados';
+  elements.resultsTitle.textContent = 'Ocorrências fora do padrão';
   elements.resultsMeta.textContent = '0';
   showEmptyState(
     'Nenhum arquivo processado ainda.',
-    'Importe um CSV, TSV ou TXT estruturado para iniciar a análise.',
+    'Importe um CSV, TSV ou TXT estruturado para iniciar o diagnóstico.',
   );
 }
 
@@ -143,16 +143,16 @@ function renderAnalysis(analysis, fileName) {
     charge: `${formatNumber(analysis.chargeStats.mean, 2)} kg`,
   });
 
-  elements.resultsTitle.textContent = 'Outliers identificados';
+  elements.resultsTitle.textContent = 'Ocorrências fora do padrão';
   elements.resultsMeta.textContent = String(analysis.outliers.length);
 
   if (!analysis.activeRows) {
-    showEmptyState('Sem registros elegíveis.', 'Não há furos ativos com profundidade e carga válidas para análise.');
+    showEmptyState('Sem registros elegíveis.', 'Não há furos válidos com profundidade e carga compatíveis para o diagnóstico.');
     return;
   }
 
   if (!analysis.outliers.length) {
-    showEmptyState('Sem outliers identificados.', 'Os registros permanecem dentro da faixa estatística esperada para profundidade e carga.');
+    showEmptyState('Sem desvios identificados.', 'Os registros permanecem dentro da faixa estatística esperada para profundidade e carga.');
     return;
   }
 
