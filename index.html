@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#091525" />
+  <title>Alertas | Enaex</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div class="masthead__brand">
+        <div class="masthead__logo-wrap">
+          <img src="./VISUAL/Enaex Brasil - White.png" alt="Enaex Brasil" class="masthead__logo" />
+        </div>
+        <div class="masthead__copy">
+          <h1>Alertas</h1>
+        </div>
+      </div>
+      <div class="masthead__chip" id="status" aria-live="polite">Pronto</div>
+    </header>
+
+    <section class="hero panel">
+      <div class="dropzone" id="dropzone">
+        <input id="fileInput" class="dropzone__input" type="file" accept=".csv,.tsv,.txt" aria-label="Enviar arquivo de carregamento" />
+
+        <div class="dropzone__content">
+          <div class="dropzone__icon">⇪</div>
+          <strong>Arquivo</strong>
+        </div>
+
+        <div class="dropzone__actions">
+          <button type="button" class="btn btn--primary" id="sampleButton">Exemplo</button>
+          <span class="file-chip" id="fileName">--</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="Resumo">
+      <article class="metric">
+        <span class="metric__label">Furos</span>
+        <strong class="metric__value" id="metricLoaded">-</strong>
+      </article>
+
+      <article class="metric">
+        <span class="metric__label">Deletados</span>
+        <strong class="metric__value" id="metricDeleted">-</strong>
+      </article>
+
+      <article class="metric">
+        <span class="metric__label">Profundidade</span>
+        <strong class="metric__value" id="metricDepth">-</strong>
+      </article>
+
+      <article class="metric">
+        <span class="metric__label">Carga</span>
+        <strong class="metric__value" id="metricCharge">-</strong>
+      </article>
+    </section>
+
+    <section class="results panel">
+      <div class="results__head">
+        <h2 id="resultsTitle">Alertas</h2>
+        <span class="results__meta" id="resultsMeta">0</span>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        Carregue arquivo.
+      </div>
+
+      <div class="outlier-list hidden" id="resultsBody"></div>
+    </section>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
