@@ -4,6 +4,7 @@ const elements = {
   dropzone: document.getElementById('dropzone'),
   fileInput: document.getElementById('fileInput'),
   sampleButton: document.getElementById('sampleButton'),
+  fileButton: document.getElementById('fileButton'),
   fileName: document.getElementById('fileName'),
   status: document.getElementById('status'),
   metrics: {
@@ -26,6 +27,7 @@ renderIdleState();
 function bindEvents() {
   elements.fileInput.addEventListener('change', handleFileSelection);
   elements.sampleButton.addEventListener('click', loadSampleFile);
+  elements.fileButton.addEventListener('click', openFilePicker);
 
   elements.dropzone.addEventListener('dragenter', activateDropzone);
   elements.dropzone.addEventListener('dragover', activateDropzone);
@@ -101,6 +103,14 @@ async function loadSampleFile() {
   } finally {
     setBusy(false);
   }
+}
+
+function openFilePicker() {
+  if (elements.fileInput.disabled) {
+    return;
+  }
+
+  elements.fileInput.click();
 }
 
 async function loadFile(file) {
@@ -331,6 +341,7 @@ function setMetrics(values) {
 
 function setBusy(isBusy) {
   elements.sampleButton.disabled = isBusy;
+  elements.fileButton.disabled = isBusy;
   elements.fileInput.disabled = isBusy;
   elements.dropzone.classList.toggle('is-busy', isBusy);
 }

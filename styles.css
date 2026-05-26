@@ -320,6 +320,12 @@ button {
   box-shadow: 0 16px 28px rgba(213, 31, 43, 0.22);
 }
 
+.btn--secondary {
+  color: var(--blue);
+  background: rgba(16, 61, 104, 0.08);
+  border: 1px solid rgba(16, 61, 104, 0.12);
+}
+
 .file-chip {
   display: inline-flex;
   align-items: center;
