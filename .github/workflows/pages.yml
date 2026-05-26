@@ -6,6 +6,8 @@ on:
       - main
   workflow_dispatch:
 
+# Keeps the Actions deployment explicit after Pages mode switch.
+
 permissions:
   contents: read
   pages: write
