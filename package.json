@@ -1,0 +1,8 @@
+{
+  "name": "correcao-de-cargas",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}
