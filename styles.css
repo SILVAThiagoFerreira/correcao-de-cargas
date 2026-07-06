@@ -94,22 +94,24 @@ button {
 .masthead__brand {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 14px;
   min-width: 0;
 }
 
 .masthead__logo-wrap {
   flex: 0 0 auto;
-  padding: 6px 8px;
-  border-radius: var(--radius-lg);
+  padding: 3px 5px;
+  border-radius: var(--radius-md);
   background: #ffffff;
   border: 1px solid rgba(56, 66, 75, 0.08);
 }
 
 .masthead__logo {
   display: block;
-  width: 72px;
-  height: auto;
+  width: auto;
+  max-width: 26px;
+  height: 30px;
+  object-fit: contain;
 }
 
 .masthead__copy {
@@ -689,7 +691,8 @@ tbody tr:hover {
   }
 
   .masthead__logo {
-    width: 60px;
+    max-width: 24px;
+    height: 28px;
   }
 
   .hero,
