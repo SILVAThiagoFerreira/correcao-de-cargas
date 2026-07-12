@@ -22,6 +22,11 @@
   --radius-md: 4px;
 }
 
+/* OpenBlast shared header treatment */
+.masthead { border-top: 3px solid #ed1c24 !important; background: #fff !important; box-shadow: 0 1px 0 #e9ecef !important; }
+.masthead__brand { align-items: center; }
+.masthead__logo { width: 112px !important; max-height: 38px; object-fit: contain; }
+
 * {
   box-sizing: border-box;
 }
