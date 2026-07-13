@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#263540" />
   <meta name="description" content="Diagnóstico de outliers de profundidade e carga em bases de perfuração e desmonte." />
   <meta name="robots" content="index,follow" />
   <title>Outliers de Carregamento | OpenBlast</title>
@@ -20,17 +20,18 @@
       <span class="openblast-hubbar__title">Análise de Cargas</span>
     </header>
     <header class="masthead">
-      <div class="masthead__brand">
-        <div class="masthead__logo-wrap">
-          <img src="./openblast-logo.png" alt="OpenBlast" class="masthead__logo" />
+      <div class="masthead__copy">
+        <div class="eyebrow">Diagnóstico de carregamento</div>
+        <div class="masthead__title-row">
+          <h1>Análise de Cargas</h1>
+          <span class="masthead__marker" aria-hidden="true">01</span>
         </div>
-        <div class="masthead__copy">
-          <div class="eyebrow">Diagnóstico de carregamento</div>
-          <h1>Outliers de Carregamento</h1>
-          <p class="masthead__text">Identificação de desvios de profundidade e carga em relação à faixa esperada, com destaque para registros excluídos.</p>
-        </div>
+        <p class="masthead__text">Identifique desvios de profundidade e carga na execução e direcione a revisão técnica para os furos que realmente precisam de atenção.</p>
       </div>
-      <div class="masthead__chip" id="status" aria-live="polite">Aguardando entrada de dados</div>
+      <div class="masthead__side">
+        <span class="masthead__side-label">Status da leitura</span>
+        <div class="masthead__chip" id="status" aria-live="polite">Aguardando entrada de dados</div>
+      </div>
     </header>
 
     <section class="hero panel">
@@ -38,13 +39,14 @@
         <input id="fileInput" class="dropzone__input" type="file" accept=".csv,.tsv,.txt" aria-label="Enviar arquivo de carregamento" />
 
         <div class="dropzone__content">
-          <div class="dropzone__icon">⇪</div>
-          <strong>Importar base de análise</strong>
-          <span>Carregue a amostra ou selecione um CSV, TSV ou TXT estruturado</span>
+          <div class="dropzone__icon" aria-hidden="true"><span>↑</span></div>
+          <div class="dropzone__kicker">Entrada de dados</div>
+          <strong>Importe a base de carregamento</strong>
+          <span>Arraste um arquivo para esta área ou selecione um CSV, TSV ou TXT estruturado.</span>
         </div>
 
         <div class="dropzone__actions">
-          <button type="button" class="btn btn--primary" id="sampleButton">Carregar amostra</button>
+          <button type="button" class="btn btn--primary" id="sampleButton">Usar amostra</button>
           <button type="button" class="btn btn--secondary" id="fileButton">Selecionar arquivo</button>
           <span class="file-chip" id="fileName">Nenhum arquivo selecionado</span>
         </div>
@@ -79,8 +81,11 @@
 
     <section class="results panel">
       <div class="results__head">
-        <h2 id="resultsTitle">Ocorrências fora do padrão</h2>
-        <span class="results__meta" id="resultsMeta">0</span>
+        <div>
+          <div class="eyebrow">Leitura de exceções</div>
+          <h2 id="resultsTitle">Ocorrências fora do padrão</h2>
+        </div>
+        <span class="results__meta"><span id="resultsMeta">0</span><small>registros</small></span>
       </div>
 
       <div class="empty-state" id="emptyState">
